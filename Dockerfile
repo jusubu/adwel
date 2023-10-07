@@ -9,7 +9,7 @@ ADD core/ /core/
 ADD scraper/ /scraper/
 COPY requirements.txt ./
 
-# ARG src="Posthoorn PPTP.nmconnection"
+# ARG src="Posthoorn.nmconnection"
 # ARG target="/etc/NetworkManager/system-connections/Posthoorn VPN.nmconnection"
 # COPY ${src} ${target}
 # RUN chmod -R 600 '/etc/NetworkManager/system-connections/Posthoorn VPN.nmconnection'

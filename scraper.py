@@ -26,9 +26,9 @@ from scraper.ftp_manager import FTPManager
 from scraper.email_manager import EmailManager
 from scraper.data_manager import DataManager
 
-INI_FILE = "socomec.ini"
-INIT_FOLDER = "init/" # contains folder structure, empty database and ini-file for setup
-BASE_FOLDER = "mnt/" # the root for all data, logs and configs
+INI_FILE = "socomec.ini" # default ini file
+INIT_FOLDER = "setup/" # contains folder structure and empty database for setup
+BASE_FOLDER = "mnt/" # the root for all data, backup and logs
 
 def main():
     # setup the path to the working directory for local and docker use
@@ -36,8 +36,7 @@ def main():
     local_base_dir = canonical_path(os.path.join(local_base_dir, BASE_FOLDER)) # the root for all data, logs and configs
     base_dir = canonical_path(os.getenv('MOUNT_POINT', local_base_dir)) # for use in docker
     init_dir = canonical_path(os.path.join(os.getcwd(),INIT_FOLDER)) # template for the folder structure and empty database
-    # print(f'basedir = {base_dir}')
-    # print(f'init_dir = {init_dir}')
+
 
     # activate logging
     setup_logging(base_dir)
@@ -48,10 +47,8 @@ def main():
     init_manager.copy_configs()
 
     # read config from ini-file
-    ini_file = canonical_path(os.path.join(base_dir,INI_FILE))
-    # print(f'ini_file = {ini_file}')
+    ini_file = canonical_path(os.path.join(os.getcwd(),INI_FILE))
     config = ConfigurationManager(ini_file)
-    # print(config.get_sections())
 
     data_dir = canonical_path(os.path.join(base_dir, config.get("folders","download_folder")))
     backup_dir = canonical_path(os.path.join(base_dir, config.get("folders","backup_folder")))
