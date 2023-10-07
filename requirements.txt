@@ -1,0 +1,6 @@
+pandas
+py7zr
+
+uvicorn
+fastapi
+sqlmodel
