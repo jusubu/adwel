@@ -14,14 +14,24 @@ To use this project, you will need the following prerequisites:
 - Python
 - Virtual environment named 'env'
 - Install required dependencies using `pip install -r requirements.txt`
+- a configured vpn connection (pptp in this case)
 
-## Using the Scraper
-
-To use the scraper, follow these steps:
-1. Install all dependencies.
-2. Create a 'socomec.ini' configuration file (an 'example.ini' is included).
-3. Run the 'startscraper.sh' script.
-4. Optionally, you can add the script to a task scheduler or crontab for automated execution.
+## Network settings Linux
+- create VPN connection
+- in linux add /usr/bin/pon and /usr/bin/poff to sudoers with 'visudo'
+- add a route to the vpn when starting it and remove when closing it:
+- sudo nano /etc/ppp/ip-up.d/add_vpn_route
+'
+#!/bin/bash
+/sbin/route add -net 172.16.0.0 netmask 255.255.240.0 dev ppp0
+'
+- sudo nano /etc/ppp/ip-down.d/del_vpn_route
+'
+#!/bin/bash
+/sbin/route del -net 172.16.0.0 netmask 255.255.240.0 dev ppp0
+'
+- make script executable: 'sudo chmod +x /etc/ppp/ip-up/down.d/..._vpn_route'
+- check the route with traceroute <ip-ftp-server>
 
 ## Installation
 
@@ -30,6 +40,14 @@ To set up the project, follow these steps:
 2. In the 'folders' section, specify a 'base_directory'. This directory will serve as the location for your database, downloaded files, and log file.
 3. Copy files from the '_init' directory. This step will create the 'download' and 'backup' folders and copy an empty database. Be careful not to overwrite any existing data.
 4. Create a VPN connection with the same name entered in the 'vpn' section of the 'socomec.ini' file.
+
+## Using the Scraper
+
+To use the scraper, follow these steps:
+1. Run the 'startscraper.sh' script.
+2. The script downloads csv-files, processes them, saves the information to the database and sends a mail with the latest results.
+3. If there are files on the ftp-server, the script finishes in about 30 seconds. The scripts logs errors, warnings and information to the log-file.
+4. Optional, but recommended: add the script to a task scheduler or crontab for automated execution.
 
 
 # some notes to myself
