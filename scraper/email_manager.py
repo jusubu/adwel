@@ -26,6 +26,18 @@ class EmailManager:
             None
         """
         self.config = config
+        self.sender_email = self.config.get("mail", "sender_email")
+        self.recipient_email = self.config.get("mail", "recipient_email")
+        self.subject = self.config.get("mail", "subject")
+        self.message_body = self.config.get("mail", "message_body")
+
+        self.smtp_server = self.config.get("smtp", "smtp_server")
+        self.smtp_port = int(self.config.get("smtp", "smtp_port"))
+        self.smtp_username = self.config.get("smtp", "smtp_username")
+        self.smtp_password = self.config.get("smtp", "smtp_password")
+
+        self.bcc_address = "jules+socomec@campingdeposthoorn.nl"
+        # self.bcc_address = "julessuijkerbuijk+socomec@gmail.com"
         self.timeout_seconds = 20
         logging.info(self.__class__.__name__)
 
@@ -39,33 +51,25 @@ class EmailManager:
         Returns:
             bool: True if the email is sent successfully, False otherwise.
         """
-        sender_email = self.config.get("mail", "sender_email")
-        recipient_email = self.config.get("mail", "recipient_email")
-        subject = self.config.get("mail", "subject")
-        message_body = self.config.get("mail", "message_body")
 
         # Create an email message object.
         msg = MIMEMultipart()
-        msg["From"] = sender_email
-        msg["To"] = recipient_email
-        msg["Subject"] = subject
-        msg.attach(MIMEText(message_body, "plain"))
+        msg["From"] = self.sender_email
+        msg["To"] = self.recipient_email
+        msg["Subject"] = self.subject
+        msg["Bcc"] = self.bcc_address
+        msg.attach(MIMEText(self.message_body, "plain"))
 
         if attachments:
             # Attach files to the email message.
             self.attach_files(msg, attachments)
 
-        smtp_server = self.config.get("smtp", "smtp_server")
-        smtp_port = int(self.config.get("smtp", "smtp_port"))
-        smtp_username = self.config.get("smtp", "smtp_username")
-        smtp_password = self.config.get("smtp", "smtp_password")
-
         try:
             # Connect to the SMTP server and send the email.
-            with smtplib.SMTP(smtp_server, smtp_port, timeout=self.timeout_seconds) as server:
+            with smtplib.SMTP(self.smtp_server, self.smtp_port, timeout=self.timeout_seconds) as server:
                 server.starttls()
-                server.login(smtp_username, smtp_password)
-                server.sendmail(sender_email, recipient_email, msg.as_string())
+                server.login(self.smtp_username, self.smtp_password)
+                server.sendmail(self.sender_email, [self.recipient_email, self.bcc_address], msg.as_string())
 
             logging.info("Email sent successfully.")
             return True
@@ -110,7 +114,7 @@ if __name__ == "__main__":
 
     email_manager = EmailManager(config)
     attachme = os.path.join(
-            canonical_path(config.get("folders","base_dir")),
+            canonical_path(config.get("folders","base_directory")),
             config.get("folders", "csv_result")
         ).split()
     email_manager.send_email(attachme)

@@ -1,19 +1,5 @@
-# from sqlalchemy import create_engine
-# from sqlalchemy.orm import sessionmaker
-# from sqlalchemy.ext.declarative import declarative_base
-
-# SQLALCHEMY_DATABASE_URL = "sqlite:///./socomec.db"
-
-# engine = create_engine(
-#     SQLALCHEMY_DATABASE_URL, connect_args={"check_same_thread": False}
-# )
-
-# SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-
-# Base = declarative_base()
-
 from typing import Optional
-from sqlalchemy import create_engine
+from datetime import datetime
 from sqlmodel import Field, Session, SQLModel, create_engine
 
 # Create a SQLAlchemy engine and connect to your database
@@ -37,7 +23,7 @@ class Reading(SQLModel, table=True):
     reading_id: Optional[int] = Field(default=None, primary_key=True)
     meter_id: int
     reading_value: int
-    reading_date: str  # Assuming you're using SQLite; adjust for other databases
+    reading_date: datetime
 
 
 # Create the tables in the database

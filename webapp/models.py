@@ -1,5 +1,5 @@
 from typing import Optional
-
+from datetime import datetime
 from pydantic import BaseModel
 
 
@@ -17,24 +17,5 @@ class Meter(BaseModel):
 class Reading(BaseModel):
     id: Optional[int] = None
     meter_id: int
-    reading_date: str
+    reading_date: datetime
     reading_value: float
-
-
-# from sqlmodel import SQLModel, Field
-# class Address(SQLModel):
-#     id: int = Field(primary_key=True)
-#     address_text: str
-
-
-# class Meter(SQLModel):
-#     id: int = Field(primary_key=True)
-#     meter_name: str
-#     address_id: int
-
-
-# class Reading(SQLModel):
-#     id: int = Field(primary_key=True)
-#     meter_id: int
-#     reading_date: str
-#     reading_value: float

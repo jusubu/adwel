@@ -40,8 +40,9 @@ class VPNManager:
         self.vpn_name = self.config.get("vpn", "vpn_name")
         self.vpn_username = self.config.get("vpn", "vpn_username")
         self.vpn_password = self.config.get("vpn", "vpn_password")
+        self.vpn_server_ip = self.config.get("vpn", "vpn_server_ip")
         self.timeout_seconds = 20 # connection time out
-        self.wait_seconds = 2 # wait time after vpn connect
+        self.wait_seconds = 4 # wait for the vpn to finish setting up the connection
 
         # Construct connect and disconnect commands based on the platform.
         self.connect_command = self._construct_command(self.CONNECT_COMMANDS)
@@ -55,41 +56,22 @@ class VPNManager:
         It connects to the server fine, but after that nothing....
         edit: Probably it needs a 'route' to the vpn-network
 
-        Create the PPTP VPN connection using NetworkManager on Linux or rasdial on Windows
+        Create the PPTP VPN connection using pptp-linux on Linux or rasdial on Windows
         with MSCHAP and MSCHAPv2 authentication.
 
         Returns:
             bool: True if the creation was successful, False otherwise.
         """
+
         if platform.system() == "Linux":
             # Define the command as a list of arguments
             create_command = [
-                'nmcli',
-                'connection',
-                'add',
-                'con-name', f'{self.vpn_name}',
-                'type', 'vpn',
-                'vpn-type', 'pptp',
-                'ifname', '*',
-                'connection.autoconnect', 'off',
-                # 'connection.permissions', f'user:{your_username}',
-                'ipv4.dns-search', '',
-                'ipv4.method', 'auto',
-                'ipv4.never-default', 'true',
-                'ipv6.dns-search', '',
-                'ipv6.method', 'auto',
-                'ipv6.never-default', 'true',
-                '+vpn.data', 'gateway=82.139.77.43',
-                '+vpn.data', 'lcp-echo-failure=5',
-                '+vpn.data', 'lcp-echo-interval=30',
-                '+vpn.data', 'password-flags=1',
-                '+vpn.data', 'refuse-chap=yes',
-                '+vpn.data', 'refuse-eap=yes',
-                '+vpn.data', 'refuse-pap=yes',
-                '+vpn.data', 'require-mppe=yes',
-                '+vpn.data', f'user={self.vpn_username}',
-                '+vpn.data', 'service-type=org.freedesktop.NetworkManager.pptp',
-                '+vpn.secret', f'password={self.vpn_password}'
+                'pptpsetup',
+                '--create', self.vpn_name,
+                '--server', self.vpn_server_ip,
+                '--username', self.vpn_username,
+                '--password', self.vpn_password,
+                '--start',
             ]
 
             returncode = self._execute_command(create_command)
@@ -98,7 +80,7 @@ class VPNManager:
             logging.info(f'returncode {returncode}')
 
             return returncode == 0
-
+        
         elif platform.system() == "Windows":
             create_command = [
                 "rasdial",
